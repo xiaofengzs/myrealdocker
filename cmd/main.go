@@ -3,15 +3,20 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 
-	log "github.com/sirupsen/logrus"
-	"github.com/urfave/cli"
 	"github.com/tristan/myrealdocker/app"
+	"github.com/tristan/myrealdocker/cgroup"
+	"github.com/tristan/myrealdocker/cgroup/subsystems"
+	"github.com/tristan/myrealdocker/log"
+	"github.com/urfave/cli"
 )
 
 const usage = `mydocker is a simple container runtime inplementation.
 The purpose of this project is to learn how docker works and how to write a docker by ourselvers
 Enjoy it, just for fun.`
+
+var logger = log.NewLogger()
 
 func main() {
 	app := cli.NewApp()
@@ -25,14 +30,11 @@ func main() {
 
 	app.Before = func(context *cli.Context) error {
 		// Log as JSON instead of the defailt ACSII formatter
-		log.SetFormatter(&log.JSONFormatter{})
-		
-		log.SetOutput(os.Stdout)
 		return nil
 	}
 
 	if err := app.Run(os.Args); err != nil {
-		log.Fatal(err)
+		logger.Fatal("Run failed %v", err.Error)
 	}
 }
 
@@ -45,22 +47,34 @@ var runCommand = cli.Command{
 			Name:  "ti",
 			Usage: "enable tty",
 		},
+		cli.StringFlag{
+			Name: "m",
+			Usage: "memory limit",
+		},
+		cli.StringFlag{
+			Name: "cpushare",
+			Usage: "cpushare limit",
+		},
+		cli.StringFlag{
+			Name: "cpuset",
+			Usage: "cpuset limit",
+		},
 	},
-
-	/*
-		这里是run命令执行的真正函数
-		1. 判断参数是否包含command,
-		2. 获取用户指定的command
-		3. 调用 Run function去准备启动容器
-	*/
 	Action: func(context *cli.Context) error {
 		if len(context.Args()) < 1 {
 			return fmt.Errorf("Missing container command")
 		}
-		cmd := context.Args().Get(0)
-		fmt.Printf("arg cmd %s", cmd)
+		var cmdArray []string
+		for _, arg := range context.Args() {
+			cmdArray = append(cmdArray, arg)
+		}
 		tty := context.Bool("ti")
-		Run(tty, cmd)
+		resConf := &subsystems.ResourceConfig{
+			MemoryLimit: context.String("m"),
+			CpuSet: context.String("cpuset"),
+			CpuShare: context.String("cpushare"),
+		}
+		Run(tty, cmdArray, resConf)
 		return nil
 	},
 }
@@ -75,9 +89,9 @@ var initCommand = cli.Command{
 		2. 执行容器初始化操作
 	*/
 	Action: func(context *cli.Context) error {
-		log.Infof("init come on")
+		logger.Info("init come ont")
 		cmd := context.Args().Get(0)
-		log.Infof("command %s", cmd)
+		logger.Infof("command in init %s", cmd)
 		err := container.RunContainerInitProcess(cmd, nil)
 		return err
 	},
@@ -85,12 +99,30 @@ var initCommand = cli.Command{
 
 /*
  */
- func Run(tty bool, command string) {
-	parent := container.NewParentProcess(tty, command)
-	if err := parent.Start(); err != nil {
-		log.Error(err)
+func Run(tty bool, comArray []string, res *subsystems.ResourceConfig) {
+	parent, writePipe := container.NewParentProcess(tty)
+	if parent == nil {
+		logger.Errorf("New parent process error")
+		return 
 	}
+	if err:= parent.Start(); err != nil {
+		logger.Error(err)
+	}
+
+	cgroupManager := cgroup.NewCgroupManager("mydocker-cgroup")
+	defer cgroupManager.Destory()
+	cgroupManager.Set(res)
+	cgroupManager.Set(res)
+	cgroupManager.Apply(parent.Process.Pid)
+
+	sendInitCommand(comArray, writePipe)
 	parent.Wait()
-	os.Exit(-1)
+}
+
+func sendInitCommand(comArray []string, writePipe *os.File) {
+	command := strings.Join(comArray, " ")
+	logger.Infof("command all is %s", command)
+	writePipe.WriteString(command)
+	writePipe.Close()
 }
 
