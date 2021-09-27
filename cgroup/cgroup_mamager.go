@@ -13,7 +13,7 @@ type CgroupMamager struct {
 }
 
 func NewCgroupManager(path string) *CgroupMamager {
-	return &CgroupMamager{}
+	return &CgroupMamager{Path: path}
 }
 
 func (c *CgroupMamager) Apply(pid int) error {
