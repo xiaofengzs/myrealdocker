@@ -24,13 +24,16 @@ func NewParentProcess(tty bool) (*exec.Cmd, *os.File) {
 		Cloneflags: syscall.CLONE_NEWUTS | syscall.CLONE_NEWPID | syscall.CLONE_NEWNS |
 			syscall.CLONE_NEWNET | syscall.CLONE_NEWIPC,
 	}
-	cmd.Dir = "/busybox"
 	if tty {
 		cmd.Stdin = os.Stdin
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 	}
 	cmd.ExtraFiles = []*os.File{readPipe}
+	mntURL := "/home/tristan/mnt/"
+	rootURL := "/home/tristan/"
+	NewWorkSpace(rootURL, mntURL)
+	cmd.Dir = mntURL	
 	return cmd, writePipe
 }
 
