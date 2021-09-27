@@ -6,13 +6,18 @@ import (
 	"os"
 	"path"
 	"strconv"
+
+	"github.com/tristan/myrealdocker/log"
 )
+
+var logger = log.NewLogger()
 
 type CpuSubSystem struct {
 }
 
 func (s *CpuSubSystem) Set(cgroupPath string, res *ResourceConfig) error {
 	subsysCgroupPath, err := GetCgroupPath(s.Name(), cgroupPath, true)
+	logger.Infof("cpu cgroup path: [%v]", subsysCgroupPath)
 	if err == nil {
 		if res.CpuShare != "" {
 			err = ioutil.WriteFile(path.Join(subsysCgroupPath, "cpu.shares"), []byte(res.CpuShare), 0644)
@@ -36,6 +41,7 @@ func (s *CpuSubSystem) Remove(cgroupPath string) error {
 }
 
 func (s *CpuSubSystem) Apply(cgroupPath string, pid int) error {
+	logger.Infof("apply cpu for pid:[%v], cgroupPath:[%v]", pid, cgroupPath)
 	subsysCgroupPath, err := GetCgroupPath(s.Name(),cgroupPath, false)
 	if err == nil {
 		err = ioutil.WriteFile(path.Join(subsysCgroupPath, "tasks"), []byte(strconv.Itoa(pid)), 0644)

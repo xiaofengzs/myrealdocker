@@ -13,6 +13,7 @@ type MemorySubSystem struct {
 
 func (s *MemorySubSystem) Set(cgroupPath string, res *ResourceConfig) error {
 	subsysCgroupPath, err := GetCgroupPath(s.Name(), cgroupPath, true)
+	logger.Infof("cpuset cgroup path: [%v]", subsysCgroupPath)
 	if err == nil {
 		if res.MemoryLimit != "" {
 			err := ioutil.WriteFile(path.Join(subsysCgroupPath, "memory.limit_in_bytes"), []byte(res.MemoryLimit), 0644)
@@ -36,6 +37,7 @@ func (s *MemorySubSystem) Remove(cgroupPath string) error {
 }
 
 func (s *MemorySubSystem) Apply(cgroupPath string, pid int) error {
+	logger.Infof("apply memory for pid:[%v], cgroupPath:[%v]", pid, cgroupPath)
 	subsysCgroup, err := GetCgroupPath(s.Name(), cgroupPath, false)
 	if err == nil {
 		err := ioutil.WriteFile(path.Join(subsysCgroup, "tasks"), []byte(strconv.Itoa(pid)), 0644)
