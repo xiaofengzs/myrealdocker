@@ -5,8 +5,10 @@ import (
 	"os/exec"
 	"syscall"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/tristan/myrealdocker/log"
 )
+
+var logger = log.NewLogger()
 
 /*
 	这里是父进程，也就是当前进程执行的内容，根据上一章介绍的内容，应该比较容易明报。
@@ -14,7 +16,7 @@ import (
 func NewParentProcess(tty bool) (*exec.Cmd, *os.File) {
 	readPipe, writePipe, err := NewPipe()
 	if err != nil {
-		log.Errorf("New pipe error %v", err)
+		logger.Errorf("New pipe error %v", err)
 		return nil, nil
 	}
 	cmd := exec.Command("/proc/self/exe", "init")
@@ -34,22 +36,7 @@ func NewParentProcess(tty bool) (*exec.Cmd, *os.File) {
 func NewPipe() (*os.File, *os.File, error) {
 	read, write, err := os.Pipe()
 	if err != nil {
-		return nil, nil, nil
+		return nil, nil, err
 	}
 	return read, write, nil
-}
-
-/* */
-func RunContainerInitProcess(command string, args []string) error {
-	log.Info("command %s", command)
-	// syscall.Mount("", "/", "", syscall.MS_PRIVATE|syscall.MS_REC, "")
-
-	defaultMountFlags := syscall.MS_NOEXEC | syscall.MS_NOSUID | syscall.MS_NODEV
-	syscall.Mount("proc", "/proc", "proc", uintptr(defaultMountFlags), "")
-
-	argv := []string{command}
-	if err := syscall.Exec(command, argv, os.Environ()); err != nil {
-		log.Errorf(err.Error())
-	}
-	return nil
 }
