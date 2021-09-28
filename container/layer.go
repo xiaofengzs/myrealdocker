@@ -47,7 +47,8 @@ func CreateMountPoint(rootURL string, mntURL string) {
 	if err != nil {
 		logger.Errorf("Mkdir dir %s error. %v", mntURL, err)
 	}
-	dirs := "dirs" + rootURL + "writeLayer:" + rootURL + "busybox"
+	logger.Infof("rootURL is [%v]", rootURL)
+	dirs := "dirs=" + rootURL + "writeLayer:" + rootURL + "busybox"
 	logger.Infof("dirs path is %v", dirs)
 	cmd := exec.Command("mount", "-t", "aufs", "-o", dirs, "none", mntURL)
 	cmd.Stdout = os.Stdout
