@@ -15,7 +15,7 @@ func NewWorkSpace(rootURL string, mntURL string) {
 func CreateReadOnlyLayer(rootURL string) {
 	// busyboxURL := rootURL + "busybox/"
 	busyboxURL := fmt.Sprintf("%sbusybox/", rootURL)
-	busyboxTarURL := fmt.Sprintf("%sbusybox.tar/", rootURL)
+	busyboxTarURL := fmt.Sprintf("%sbusybox.tar", rootURL)
 
 	exist, err := PathExists(busyboxURL)
 	if err != nil {
@@ -28,7 +28,7 @@ func CreateReadOnlyLayer(rootURL string) {
 		}
 		_, err = exec.Command("tar", "-xvf", busyboxTarURL, "-C", busyboxURL).CombinedOutput()
 		if err != nil {
-			logger.Errorf("Untar dir %s error %v", busyboxURL, err)
+			logger.Errorf("Untar dir %s error %v", busyboxTarURL, err)
 		}
 	}
 }
