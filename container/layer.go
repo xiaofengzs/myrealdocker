@@ -21,7 +21,7 @@ func CreateReadOnlyLayer(rootURL string) {
 	if err != nil {
 		logger.Infof("Fail to judge whether dir %s exists. %v", busyboxURL, err)
 	}
-	if exist {
+	if !exist {
 		err := os.Mkdir(busyboxURL, 0777)
 		if err != nil {
 			logger.Errorf("Mkdir dir %s error. %v", busyboxURL, err)
