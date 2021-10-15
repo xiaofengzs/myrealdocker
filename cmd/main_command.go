@@ -37,6 +37,7 @@ var runCommand = cli.Command{
 		for _, arg := range context.Args() {
 			cmdArray = append(cmdArray, arg)
 		}
+		logger.Infof("Receive args: %v", cmdArray)
 		tty := context.Bool("ti")
 		resConf := &subsystems.ResourceConfig{
 			MemoryLimit: context.String("m"),

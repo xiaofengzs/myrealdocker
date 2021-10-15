@@ -13,7 +13,8 @@ import (
 /* */
 func RunContainerInitProcess() error {
 	cmdArray := readUserCommand()
-	if len(cmdArray) == 0 {
+	logger.Infof("Receive command [%v]", cmdArray)
+	if len(cmdArray) == 0 { 
 		return fmt.Errorf("Run container get user command error, cmdArray is nil")
 	}
 

@@ -32,7 +32,7 @@ import (
 
 func sendInitCommand(comArray []string, writePipe *os.File) {
 	command := strings.Join(comArray, " ")
-	logger.Infof("command all is %s", command)
+	logger.Infof("command all is [%s]", command)
 	writePipe.WriteString(command)
 	writePipe.Close()
 }

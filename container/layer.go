@@ -15,7 +15,9 @@ func NewWorkSpace(rootURL string, mntURL string) {
 func CreateReadOnlyLayer(rootURL string) {
 	// busyboxURL := rootURL + "busybox/"
 	busyboxURL := fmt.Sprintf("%sbusybox/", rootURL)
+	logger.Infof("busyboxURL is %v", busyboxURL)
 	busyboxTarURL := fmt.Sprintf("%sbusybox.tar", rootURL)
+	logger.Infof("busyboxTarURL is %v", busyboxTarURL)
 
 	exist, err := PathExists(busyboxURL)
 	if err != nil {
