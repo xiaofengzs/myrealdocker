@@ -28,6 +28,11 @@ import (
 
 	sendInitCommand(comArray, writePipe)
 	parent.Wait()
+
+	mntURL := "/home/tristan/mnt/"
+	rootURL := "/home/tristan/"
+	container.DeleteWorkSpace(rootURL, mntURL)
+	os.Exit(0)
 }
 
 func sendInitCommand(comArray []string, writePipe *os.File) {
