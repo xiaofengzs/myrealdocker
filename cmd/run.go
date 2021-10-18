@@ -11,7 +11,7 @@ import (
 
 /*
  */
- func Run(tty bool, comArray []string, res *subsystems.ResourceConfig) {
+ func Run(tty bool, comArray []string) {
 	parent, writePipe := container.NewParentProcess(tty)
 	if parent == nil {
 		logger.Errorf("New parent process error")
@@ -20,11 +20,6 @@ import (
 	if err:= parent.Start(); err != nil {
 		logger.Error(err)
 	}
-
-	cgroupManager := cgroup.NewCgroupManager("mydocker-cgroup")
-	defer cgroupManager.Destory()
-	cgroupManager.Set(res)
-	cgroupManager.Apply(parent.Process.Pid)
 
 	sendInitCommand(comArray, writePipe)
 	parent.Wait()

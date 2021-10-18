@@ -82,7 +82,7 @@ func pivotRoot(root string) error {
 	}
 
 	pivotDir = filepath.Join("/", ".pivot_root")
-	err = syscall.Unmount(pivotDir, syscall.CLONE_DETACHED)
+	err = syscall.Unmount(pivotDir, syscall.MNT_DETACH)
 	if err != nil {
 		return fmt.Errorf("unmount pivot_root dir %v", err)
 	}
