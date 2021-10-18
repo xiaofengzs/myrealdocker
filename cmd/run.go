@@ -4,8 +4,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/tristan/myrealdocker/cgroup"
-	"github.com/tristan/myrealdocker/cgroup/subsystems"
 	"github.com/tristan/myrealdocker/container"
 )
 
